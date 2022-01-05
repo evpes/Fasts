@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		12A0C18E2785CA1A0075230A /* UIButton+allign.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A0C18D2785CA1A0075230A /* UIButton+allign.swift */; };
 		12A0C1902785CA460075230A /* UIColor+hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A0C18F2785CA460075230A /* UIColor+hex.swift */; };
+		12A0C1942785D0ED0075230A /* FoodAlertView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12A0C1932785D0ED0075230A /* FoodAlertView.swift */; };
 		12AA46D8277B81B1007E41C4 /* K.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AA46D7277B81B1007E41C4 /* K.swift */; };
 		12AA46DD27835C1E007E41C4 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AA46DC27835C1E007E41C4 /* MainView.swift */; };
 		12AA46DF2784790A007E41C4 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AA46DE2784790A007E41C4 /* TabBar.swift */; };
@@ -31,6 +32,7 @@
 /* Begin PBXFileReference section */
 		12A0C18D2785CA1A0075230A /* UIButton+allign.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIButton+allign.swift"; sourceTree = "<group>"; };
 		12A0C18F2785CA460075230A /* UIColor+hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+hex.swift"; sourceTree = "<group>"; };
+		12A0C1932785D0ED0075230A /* FoodAlertView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoodAlertView.swift; sourceTree = "<group>"; };
 		12AA46D7277B81B1007E41C4 /* K.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = K.swift; sourceTree = "<group>"; };
 		12AA46DC27835C1E007E41C4 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 		12AA46DE2784790A007E41C4 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
@@ -68,6 +70,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		12A0C1912785D08C0075230A /* Alerts */ = {
+			isa = PBXGroup;
+			children = (
+				12A0C1922785D0970075230A /* View */,
+			);
+			path = Alerts;
+			sourceTree = "<group>";
+		};
+		12A0C1922785D0970075230A /* View */ = {
+			isa = PBXGroup;
+			children = (
+				12EC3239277B3068003EC743 /* WaterAlertView.swift */,
+				12A0C1932785D0ED0075230A /* FoodAlertView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		12AA46D927835B8F007E41C4 /* Main */ = {
 			isa = PBXGroup;
 			children = (
@@ -202,7 +221,7 @@
 				12D0EBA42778EA9B00207D77 /* Assets.xcassets */,
 				12D0EBA62778EA9B00207D77 /* LaunchScreen.storyboard */,
 				12D0EBA92778EA9B00207D77 /* Info.plist */,
-				12EC3239277B3068003EC743 /* WaterAlertView.swift */,
+				12A0C1912785D08C0075230A /* Alerts */,
 				12C89A1A2785B76600E87EF4 /* GoogleService-Info.plist */,
 			);
 			path = Fasts;
@@ -346,6 +365,7 @@
 				12D0EBA02778EA9900207D77 /* MainViewController.swift in Sources */,
 				12C89A1D2785C51400E87EF4 /* UIViewController+keboardShow.swift in Sources */,
 				12AA46DD27835C1E007E41C4 /* MainView.swift in Sources */,
+				12A0C1942785D0ED0075230A /* FoodAlertView.swift in Sources */,
 				12AA46D8277B81B1007E41C4 /* K.swift in Sources */,
 				12EC323A277B3069003EC743 /* WaterAlertView.swift in Sources */,
 				12A0C1902785CA460075230A /* UIColor+hex.swift in Sources */,

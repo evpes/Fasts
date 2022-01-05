@@ -43,6 +43,8 @@ class MainView: UIView {
     
     //alert views
     var waterAlertView: WaterAlertView?
+    var foodAlertView: FoodAlertView?
+
     
     var screenWidth: CGFloat!
     var screenHeight: CGFloat!
@@ -68,6 +70,13 @@ class MainView: UIView {
         self.backgroundColor = .white
         //print("screenWidth = \(screenWidth) screenHeight = \(screenHeight)")
         
+        let fastingRadius = screenHeight * 0.25//self.frame.height * 0.25
+        let waterRadius = fastingRadius - 48
+        let stepRadius = waterRadius - 48
+        var yCircleCenter = screenHeight/3 //self.frame.height/3 + 35
+        let sectionHeight = fastingRadius * 2 / 3
+        var firstOffset = 25
+        
         var scrollView: UIScrollView!
         //scrollView = UIScrollView(frame: CGRect(x: 0, y: 0, width: screenWidth, height: screenHeight))
         scrollView = UIScrollView()
@@ -77,6 +86,9 @@ class MainView: UIView {
             scrollView.contentSize = CGSize(width: screenWidth, height: screenHeight + 50)
         } else if screenHeight < 570 {
             scrollView.contentSize = CGSize(width: screenWidth, height: screenHeight + 90)
+        } else {
+            yCircleCenter += 35
+            firstOffset += 55
         }
         
         
@@ -86,11 +98,7 @@ class MainView: UIView {
             make.top.leading.trailing.bottom.equalTo(self)
         }
         
-        let fastingRadius = screenHeight * 0.25//self.frame.height * 0.25
-        let waterRadius = fastingRadius - 48
-        let stepRadius = waterRadius - 48
-        let yCircleCenter = screenHeight/3 //self.frame.height/3 + 35
-        let sectionHeight = fastingRadius * 2 / 3
+
         
         //add track layer
         let fastingTrackLayer = CAShapeLayer()
@@ -163,7 +171,7 @@ class MainView: UIView {
         nextFastLabel.textColor = .gray
         scrollView.addSubview(nextFastLabel)
         nextFastLabel.snp.makeConstraints { make in
-            make.top.equalTo(scrollView).offset(30)
+            make.top.equalTo(scrollView.snp.top).offset(firstOffset)
             make.right.equalTo(self).offset(-24)
         }
         print("1")

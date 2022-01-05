@@ -125,13 +125,22 @@ class MainViewController: UIViewController {
     }
     
     @objc func startEatButtonTapped() {
-        currentFastingInterval = 0
-        mainView.startFastButton.isEnabled = true
-        mainView.nextFastLabel.text = "until your next fast:"
-        mainView.canEatLabel.text = "you can eat now"
-        releaseDate = Date.init(timeIntervalSinceNow: 60 * 60 * Double(24 - fastingGoal))
-        saveReleaseDate()
-        countdownTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
+        setWhiteBacgroundView()
+        mainView.foodAlertView = FoodAlertView()
+        mainView.foodAlertView?.layer.cornerRadius = 8
+        mainView.foodAlertView?.layer.shadowColor = UIColor.black.cgColor
+        mainView.foodAlertView?.layer.shadowOpacity = 0.5
+        mainView.foodAlertView?.layer.shadowOffset = .zero
+        mainView.foodAlertView?.layer.shadowRadius = 10
+        mainView.addSubview(mainView.foodAlertView!)
+        mainView.foodAlertView?.delegate = self
+        
+        mainView.foodAlertView!.snp.makeConstraints { make in
+            make.center.equalTo(view.snp.center)
+            make.height.equalTo(168)
+            make.width.equalTo(screenWidth - 56)
+        }
+
     }
     
     @objc func updateTime() {
@@ -177,8 +186,7 @@ class MainViewController: UIViewController {
             make.height.equalTo(168)
             make.width.equalTo(screenWidth - 56)
         }
-        //waterAlertView?.layer.shadowPath = UIBezierPath(rect: waterAlertView!.bounds).cgPath
-        
+                
     }
     
     func setWhiteBacgroundView() {
@@ -259,6 +267,27 @@ extension MainViewController: WaterAlertDelegate {
     func closeButtonTapped() {
         mainView.waterAlertView!.removeFromSuperview()
         mainView.blankView.removeFromSuperview()
+    }
+    
+    
+}
+
+extension MainViewController: FoodAlertDelegate {
+    func addFood(g: Int) {
+        print("add food: \(g) gramms")
+    }
+    
+    func closeFoodView() {
+        mainView.foodAlertView!.removeFromSuperview()
+        mainView.blankView.removeFromSuperview()
+        
+        currentFastingInterval = 0
+        mainView.startFastButton.isEnabled = true
+        mainView.nextFastLabel.text = "until your next fast:"
+        mainView.canEatLabel.text = "you can eat now"
+        releaseDate = Date.init(timeIntervalSinceNow: 60 * 60 * Double(24 - fastingGoal))
+        saveReleaseDate()
+        countdownTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
     }
     
     
