@@ -177,7 +177,9 @@ class MainViewController: UIViewController {
             sign = ""
         }
         currentCycleInterval += 1
-        fillCircleAnimation(type: .fasting)
+        if currentCycleInterval % 5 == 0 {
+            fillCircleAnimation(type: .fasting)
+        }        
         mainView.timeNextFastLabel.text = "\(sign) \(hour):\(minute):\(seconds)"
     }
         
