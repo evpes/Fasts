@@ -28,8 +28,10 @@ class MainViewController: UIViewController {
     var waterDrunk = 0
     var countDown = "00:00:00"
     
-    var currentFastingInterval = 0
+    var currentCycleInterval = 0
+    var isFastingNow = false
     
+    //goals
     var stepsGoal: Int = 10000
     var waterGoal: Int = 3000
     var fastingGoal: Int = 16
@@ -41,16 +43,15 @@ class MainViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-
+        loadState()
         
-        loadReleaseDate()
         let screensize: CGRect = UIScreen.main.bounds
         screenWidth = screensize.width
         screenHeight = screensize.height
         
         mainView.startFastButton.addTarget(self, action: #selector(startFastButtonTapped), for: .touchUpInside)
         mainView.addLiquidButton.addTarget(self, action: #selector(addLiquidButtonPressed), for: .touchUpInside)
-        mainView.addFoodButton.addTarget(self, action: #selector(startEatButtonTapped), for: .touchUpInside)
+        mainView.addFoodButton.addTarget(self, action: #selector(addFoodButtonTapped), for: .touchUpInside)
         
         // Access Step Count
         let healthKitTypes: Set = [ HKObjectType.quantityType(forIdentifier: HKQuantityTypeIdentifier.stepCount)! ]
@@ -71,6 +72,8 @@ class MainViewController: UIViewController {
         
     }
     
+    // MARK: - circle animation
+    
     private func fillCircleAnimation(type: ActivityType) {
         
         var currentValue = 0.0
@@ -81,7 +84,8 @@ class MainViewController: UIViewController {
         
         switch type {
         case .fasting:
-            currentValue = (Double(currentFastingInterval) / Double(fastingGoal * 60 * 60)) / 2
+            let currentTimeGoal = isFastingNow ? (fastingGoal * 60 * 60) : ((24 - fastingGoal) * 60 * 60)
+            currentValue = (Double(currentCycleInterval) / Double(currentTimeGoal) / 2)
             basicAnimation.toValue = currentValue
             basicAnimation.duration = 3
             mainView.fastingShapeLayer.add(basicAnimation, forKey: "fillFasting")
@@ -109,22 +113,20 @@ class MainViewController: UIViewController {
         
     }
     
-    enum ActivityType {
-        case fasting
-        case steps
-        case water
-    }
-        
+    // MARK: - buttons functions
+    
     @objc func startFastButtonTapped() {
         mainView.startFastButton.isEnabled = false
         mainView.nextFastLabel.text = "until your mext eat time:"
         mainView.canEatLabel.text = "you can't eat now"
         releaseDate = Date.init(timeIntervalSinceNow: 60 * 60 * Double(fastingGoal))
-        saveReleaseDate()
+        startCycleDate = Date()
+        isFastingNow = true
+        saveState()
         countdownTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
     }
     
-    @objc func startEatButtonTapped() {
+    @objc func addFoodButtonTapped() {
         setWhiteBacgroundView()
         mainView.foodAlertView = FoodAlertView()
         mainView.foodAlertView?.layer.cornerRadius = 8
@@ -139,33 +141,6 @@ class MainViewController: UIViewController {
             make.center.equalTo(view.snp.center)
             make.height.equalTo(168)
             make.width.equalTo(screenWidth - 56)
-        }
-
-    }
-    
-    @objc func updateTime() {
-        let currentDate = Date()
-        let calendar = Calendar.current
-        var sign = ""
-        let diffDateComponents = calendar.dateComponents([.hour,.minute,.second], from: currentDate, to: releaseDate!)
-        let hour = abs(diffDateComponents.hour ?? 0), minute = abs(diffDateComponents.minute ?? 0), seconds = abs(diffDateComponents.second ?? 0)
-        if (diffDateComponents.hour ?? 0) < 0 || (diffDateComponents.minute ?? 0) < 0 || (diffDateComponents.second ?? 0) < 0 {
-            sign = "-"
-        } else {
-            sign = ""
-        }
-        currentFastingInterval += 1
-        fillCircleAnimation(type: .fasting)
-        mainView.timeNextFastLabel.text = "\(sign) \(hour):\(minute):\(seconds)"
-    }
-    
-    func loadCurrentCycleDuration() {
-        
-        if let startCycleDate = startCycleDate {
-            let currentDate = Date()
-            let calendar = Calendar.current
-            let diffDateComponents = calendar.dateComponents([.second], from: startCycleDate, to: currentDate)
-            currentFastingInterval = diffDateComponents.second ?? 0
         }
         
     }
@@ -186,8 +161,26 @@ class MainViewController: UIViewController {
             make.height.equalTo(168)
             make.width.equalTo(screenWidth - 56)
         }
-                
+        
     }
+    
+    
+    @objc func updateTime() {
+        let currentDate = Date()
+        let calendar = Calendar.current
+        var sign = ""
+        let diffDateComponents = calendar.dateComponents([.hour,.minute,.second], from: currentDate, to: releaseDate!)
+        let hour = abs(diffDateComponents.hour ?? 0), minute = abs(diffDateComponents.minute ?? 0), seconds = abs(diffDateComponents.second ?? 0)
+        if (diffDateComponents.hour ?? 0) < 0 || (diffDateComponents.minute ?? 0) < 0 || (diffDateComponents.second ?? 0) < 0 {
+            sign = "-"
+        } else {
+            sign = ""
+        }
+        currentCycleInterval += 1
+        fillCircleAnimation(type: .fasting)
+        mainView.timeNextFastLabel.text = "\(sign) \(hour):\(minute):\(seconds)"
+    }
+        
     
     func setWhiteBacgroundView() {
         mainView.blankView.backgroundColor = UIColor.white.withAlphaComponent(0.4)
@@ -197,23 +190,47 @@ class MainViewController: UIViewController {
         }
     }
     
-    func saveReleaseDate() {
+    // MARK: - save/load state
+    
+    func saveState() {
         let defaults = UserDefaults.standard
+        defaults.set(startCycleDate, forKey: "startCycleDate")
         defaults.set(releaseDate, forKey: "releaseDate")
+        defaults.set(isFastingNow, forKey: "isFastingNow")
     }
     
-    func loadReleaseDate() {
-        print("loading releaseDate")
+    func loadState() {
         let defaults = UserDefaults.standard
-        guard let storedDate = defaults.object(forKey: "releaseDate") as? Date else {
-            return
-        }
-        print("releaseDate is \(storedDate)")
+        //load release date
+        guard let storedDate = defaults.object(forKey: "releaseDate") as? Date else { return }
         releaseDate = storedDate
+        
+        //load fasting/eating state and change labels
+        isFastingNow = defaults.bool(forKey: "isFastingNow")
+        
+        if isFastingNow {
+            mainView.nextFastLabel.text = "until your next fast:"
+            mainView.canEatLabel.text = "you can eat now"
+        } else {
+            mainView.nextFastLabel.text = "until your next eat time:"
+            mainView.canEatLabel.text = "you can't eat now"
+        }
+        
+        //load startCycleDate and calculate cycleInterval
+        guard let storedStartDate = defaults.object(forKey: "startCycleDate") as? Date else { return }
+        startCycleDate = storedStartDate
+                
+        let currentDate = Date()
+        let calendar = Calendar.current
+        let diffDateComponents = calendar.dateComponents([.second], from: startCycleDate!, to: currentDate)
+        currentCycleInterval = diffDateComponents.second ?? 0
+        
+        //start timer
         countdownTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
         
-        
     }
+    
+    // MARK: - get steps
     
     func getSteps(completion: @escaping (Double) -> Void) {
         guard let type = HKQuantityType.quantityType(forIdentifier: .stepCount) else { return }
@@ -257,6 +274,8 @@ class MainViewController: UIViewController {
     
 }
 
+    // MARK: - extensions
+
 extension MainViewController: WaterAlertDelegate {
     func addWater(ml: Int) {
         waterDrunk += ml
@@ -280,17 +299,28 @@ extension MainViewController: FoodAlertDelegate {
     func closeFoodView() {
         mainView.foodAlertView!.removeFromSuperview()
         mainView.blankView.removeFromSuperview()
+        if isFastingNow {
+            currentCycleInterval = 0
+            isFastingNow = false
+            mainView.startFastButton.isEnabled = true
+            mainView.nextFastLabel.text = "until your next fast:"
+            mainView.canEatLabel.text = "you can eat now"
+            releaseDate = Date.init(timeIntervalSinceNow: 60 * 60 * Double(24 - fastingGoal))
+            startCycleDate = Date()
+            saveState()
+            countdownTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
+        }
         
-        currentFastingInterval = 0
-        mainView.startFastButton.isEnabled = true
-        mainView.nextFastLabel.text = "until your next fast:"
-        mainView.canEatLabel.text = "you can eat now"
-        releaseDate = Date.init(timeIntervalSinceNow: 60 * 60 * Double(24 - fastingGoal))
-        saveReleaseDate()
-        countdownTimer = Timer.scheduledTimer(timeInterval: 1, target: self, selector: #selector(updateTime), userInfo: nil, repeats: true)
+        
     }
     
     
+}
+
+enum ActivityType {
+    case fasting
+    case steps
+    case water
 }
 
 
